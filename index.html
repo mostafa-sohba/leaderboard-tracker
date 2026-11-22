@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة تقدم الدورة</title>
+    <meta name="description" content="متابعة تقدم الأصدقاء في دورة يوتيوب لحظة بلحظة." />
+    <meta property="og:title" content="لوحة تقدم الدورة" />
+    <meta property="og:description" content="متابعة تقدم الأصدقاء في دورة يوتيوب لحظة بلحظة." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-subtle: #f1f5f9;
+        --border: #e2e8f0;
+        --divider: #f1f5f9;
+        --text: #0f172a;
+        --text-secondary: #334155;
+        --muted: #64748b;
+        --accent: #059669;
+        --accent-hover: #047857;
+        --accent-track: #e2e8f0;
+        --accent-bar: #16a34a;
+        --accent-tint: #ecfdf5;
+        --accent-text: #065f46;
+        --danger: #b91c1c;
+        --danger-bg: #fef2f2;
+        --danger-border: #fecaca;
+        --radius-card: 16px;
+        --radius-control: 12px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 28px 16px 56px;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .page-title {
+        margin: 0 0 6px;
+        font-size: clamp(1.5rem, 5vw, 1.875rem);
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        color: var(--text);
+        text-wrap: balance;
+      }
+
+      .page-subtitle {
+        margin: 0 0 10px;
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+      }
+
+      .course-meta {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card {
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-card);
+        padding: 20px;
+      }
+
+      .list-card {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 0 2px;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 1.0625rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .section-meta {
+        font-size: 0.8125rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .progress-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .field {
+        width: 100%;
+        min-height: 46px;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-control);
+        background-color: var(--surface);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        line-height: 1.4;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+      }
+
+      .field::placeholder {
+        color: var(--muted);
+      }
+
+      .field:focus-visible {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.16);
+      }
+
+      select.field {
+        cursor: pointer;
+        padding-inline-end: 40px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: left 12px center;
+      }
+
+      .submit-btn {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--radius-control);
+        background-color: var(--accent);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 150ms ease, transform 120ms ease, opacity 150ms ease;
+      }
+
+      .submit-btn:hover:not(:disabled) {
+        background-color: var(--accent-hover);
+      }
+
+      .submit-btn:active:not(:disabled) {
+        transform: scale(0.99);
+      }
+
+      .submit-btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.28);
+      }
+
+      .submit-btn:disabled {
+        opacity: 0.65;
+        cursor: wait;
+      }
+
+      .alert-error {
+        padding: 11px 14px;
+        border-radius: var(--radius-control);
+        background-color: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: var(--danger);
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .status-feedback {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--accent-text);
+        font-weight: 500;
+        text-align: center;
+      }
+
+      .leader-list,
+      .chapter-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .leader-row {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--divider);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .leader-row:last-child {
+        border-bottom: none;
+      }
+
+      .leader-row.is-me {
+        background-color: var(--accent-tint);
+      }
+
+      .leader-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .rank-num {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background-color: var(--surface-subtle);
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .leader-row:first-child .rank-num {
+        background-color: var(--accent);
+        color: #ffffff;
+      }
+
+      .player-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        overflow-wrap: anywhere;
+      }
+
+      .time-ago {
+        margin-inline-start: auto;
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .leader-chapter {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        padding-inline-start: 38px;
+      }
+
+      .progress-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-inline-start: 38px;
+      }
+
+      .progress-track {
+        flex: 1;
+        height: 7px;
+        border-radius: 999px;
+        background-color: var(--accent-track);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        background-color: var(--accent-bar);
+        transition: width 220ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .progress-pct {
+        flex-shrink: 0;
+        min-width: 40px;
+        text-align: left;
+        direction: ltr;
+        unicode-bidi: isolate;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent-text);
+      }
+
+      .ltr-num {
+        direction: ltr;
+        unicode-bidi: isolate;
+      }
+
+      .empty-state {
+        margin: 0;
+        padding: 36px 20px;
+        text-align: center;
+        font-size: 0.9375rem;
+        color: var(--muted);
+      }
+
+      .chapter-item {
+        border-bottom: 1px solid var(--divider);
+      }
+
+      .chapter-item:last-child {
+        border-bottom: none;
+      }
+
+      .chapter-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 48px;
+        padding: 13px 18px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9375rem;
+      }
+
+      a.chapter-row {
+        transition: background-color 150ms ease;
+      }
+
+      a.chapter-row:hover {
+        background-color: var(--surface-subtle);
+      }
+
+      a.chapter-row:focus-visible {
+        outline: none;
+        background-color: var(--accent-tint);
+        box-shadow: inset 0 0 0 2px var(--accent);
+      }
+
+      .chapter-label {
+        font-weight: 500;
+        color: var(--text);
+        overflow-wrap: anywhere;
+      }
+
+      a.chapter-row .chapter-label {
+        color: var(--accent-text);
+      }
+
+      .chapter-meta {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      .ext-icon {
+        width: 14px;
+        height: 14px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <header class="page-header">
+        <h1 class="page-title">لوحة تقدم الدورة</h1>
+        <p class="page-subtitle">شاهد الدورة على يوتيوب ثم سجّل آخر فصل وصلت إليه هنا.</p>
+        <p id="course-meta" class="course-meta"></p>
+      </header>
+
+      <section class="card" aria-label="تسجيل التقدم">
+        <form id="progress-form" class="progress-form" novalidate>
+          <div>
+            <label for="player-name" class="sr-only">اسمك</label>
+            <input
+              id="player-name"
+              name="player_name"
+              class="field"
+              type="text"
+              maxlength="60"
+              placeholder="اسمك"
+              autocomplete="name"
+              required
+            />
+          </div>
+
+          <div>
+            <label for="chapter-select" class="sr-only">اختر الفصل</label>
+            <select id="chapter-select" name="chapter_index" class="field" required>
+              <option value="" disabled selected>اختر الفصل</option>
+            </select>
+          </div>
+
+          <button id="submit-btn" class="submit-btn" type="submit">حفظ التقدم</button>
+
+          <div id="form-error" class="alert-error" role="alert" hidden>
+            تعذّر حفظ تقدمك. حاول مرة أخرى.
+          </div>
+          <p id="form-status" class="status-feedback" role="status" hidden></p>
+        </form>
+      </section>
+
+      <section class="section" aria-labelledby="leaderboard-heading">
+        <div class="section-header">
+          <h2 id="leaderboard-heading" class="section-title">المتصدرون</h2>
+          <span id="leaderboard-count" class="section-meta"></span>
+        </div>
+        <div id="leaderboard-container" class="card list-card">
+          <p class="empty-state">لا يوجد تقدم بعد — كن الأول!</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="chapters-heading">
+        <div class="section-header">
+          <h2 id="chapters-heading" class="section-title">الفصول</h2>
+          <span id="chapters-count" class="section-meta"></span>
+        </div>
+        <div id="chapters-container" class="card list-card"></div>
+      </section>
+    </main>
+
+    <script>
+      // =======================================================================
+      // EDIT THIS — إعدادات سوبابيس وبيانات الدورة
+      // =======================================================================
+      const SUPABASE_URL = 'https://gocqvdevpnyubehhryyo.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_WZAaTgAup8VDIYxmbVS2GQ_sMhDU92Q';
+
+      const COURSE = {
+        title: 'كورس الإكسل من الصفر للإحتراف',
+        youtubeVideoId: 'uv1bxe2gdnU', // ضع معرف فيديو يوتيوب هنا (مثل 'dQw4w9WgXcQ') أو اتركه null
+        totalSeconds: 28997, // 8 ساعات = 28800 ثانية
+        chapters: [
+          { title: 'مقدمة إلى برنامج إكسل وواجهة المستخدم الرسومية', start: 0 },
+          { title: 'إدارة البيانات', start: 965 },
+          { title: 'صيغ ووظائف إكسل', start: 5936 },
+          { title: 'جداول إكسل', start: 9355 },
+          { title: 'الجداول المحورية', start: 10708 },
+          { title: 'مخططات تحليل البيانات', start: 12418 },
+          { title: 'استيراد البيانات وتنظيفها', start: 14043 },
+          { title: 'باور كويري ولغة M', start: 15630 },
+          { title: 'نمذجة البيانات، باور بيفوت، وDAX', start: 18219 },
+        ],
+      };
+      // =======================================================================
+
+      const STORAGE_KEYS = {
+        name: 'course_leaderboard_name',
+        chapter: 'course_leaderboard_chapter',
+      };
+
+      const ARABIC_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+      function toArabicDigits(value) {
+        return String(value).replace(/\d/g, (digit) => ARABIC_DIGITS[Number(digit)]);
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatTimestamp(totalSec) {
+        const safe = Math.max(0, Math.floor(Number(totalSec) || 0));
+        const hours = Math.floor(safe / 3600);
+        const minutes = Math.floor((safe % 3600) / 60);
+        const seconds = safe % 60;
+        const mm = hours > 0 ? String(minutes).padStart(2, '0') : String(minutes);
+        const ss = String(seconds).padStart(2, '0');
+        return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+      }
+
+      function calcProgress(chapterIndex, course = COURSE) {
+        if (!course || !Array.isArray(course.chapters) || course.chapters.length === 0) {
+          return 0;
+        }
+        const safeIndex = Math.max(0, Math.min(course.chapters.length - 1, Number(chapterIndex) || 0));
+        const chapter = course.chapters[safeIndex];
+        const total = Number(course.totalSeconds) || 1;
+        const pct = Math.round((chapter.start / total) * 100);
+        return Math.max(0, Math.min(100, pct));
+      }
+
+      function formatArabicUnit(count, singular, dual, plural, accusativeSingular) {
+        if (count === 1) return singular;
+        if (count === 2) return dual;
+        if (count >= 3 && count <= 10) return `${toArabicDigits(count)} ${plural}`;
+        return `${toArabicDigits(count)} ${accusativeSingular}`;
+      }
+
+      function formatRelativeArabic(isoDate, nowMs = Date.now()) {
+        const ts = new Date(isoDate).getTime();
+        if (!Number.isFinite(ts)) return 'الآن';
+        const diffSec = Math.max(0, Math.floor((nowMs - ts) / 1000));
+        if (diffSec < 60) return 'الآن';
+
+        const minutes = Math.floor(diffSec / 60);
+        if (minutes < 60) {
+          return `منذ ${formatArabicUnit(minutes, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة')}`;
+        }
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) {
+          return `منذ ${formatArabicUnit(hours, 'ساعة', 'ساعتين', 'ساعات', 'ساعة')}`;
+        }
+
+        const days = Math.floor(hours / 24);
+        if (days < 30) {
+          return `منذ ${formatArabicUnit(days, 'يوم', 'يومين', 'أيام', 'يوماً')}`;
+        }
+
+        const months = Math.floor(days / 30);
+        if (months < 12) {
+          return `منذ ${formatArabicUnit(months, 'شهر', 'شهرين', 'أشهر', 'شهراً')}`;
+        }
+
+        const years = Math.floor(months / 12);
+        return `منذ ${formatArabicUnit(years, 'سنة', 'سنتين', 'سنوات', 'سنة')}`;
+      }
+
+      function sortLeaderboard(rows) {
+        return [...rows].sort((a, b) => {
+          const chapterDiff = (Number(b.chapter_index) || 0) - (Number(a.chapter_index) || 0);
+          if (chapterDiff !== 0) return chapterDiff;
+          const timeA = new Date(a.updated_at || 0).getTime();
+          const timeB = new Date(b.updated_at || 0).getTime();
+          return timeA - timeB;
+        });
+      }
+
+      function buildChapterUrl(videoId, startSeconds) {
+        if (!videoId || typeof videoId !== 'string' || !videoId.trim()) {
+          return null;
+        }
+        const safeStart = Math.max(0, Math.floor(Number(startSeconds) || 0));
+        return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId.trim())}&t=${safeStart}s`;
+      }
+
+      function isSupabaseConfigured(url = SUPABASE_URL, key = SUPABASE_ANON_KEY) {
+        return (
+          typeof url === 'string' &&
+          /^https?:\/\//i.test(url.trim()) &&
+          !url.includes('YOUR_SUPABASE_URL') &&
+          typeof key === 'string' &&
+          key.trim().length > 10 &&
+          !key.includes('YOUR_SUPABASE_ANON_KEY')
+        );
+      }
+
+      function upsertLocalRow(rows, incoming) {
+        if (!incoming || !incoming.player_name) return sortLeaderboard(rows);
+        const filtered = rows.filter((row) => row.player_name !== incoming.player_name);
+        filtered.push(incoming);
+        return sortLeaderboard(filtered);
+      }
+
+      if (typeof document !== 'undefined') {
+        const courseMetaEl = document.getElementById('course-meta');
+        const formEl = document.getElementById('progress-form');
+        const nameInput = document.getElementById('player-name');
+        const chapterSelect = document.getElementById('chapter-select');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorEl = document.getElementById('form-error');
+        const statusEl = document.getElementById('form-status');
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        const leaderboardCountEl = document.getElementById('leaderboard-count');
+        const chaptersContainer = document.getElementById('chapters-container');
+        const chaptersCountEl = document.getElementById('chapters-count');
+
+        let leaderboardRows = [];
+        let isLoading = false;
+        let db = null;
+
+        function initMetaAndForm() {
+          const totalHours = Math.round((COURSE.totalSeconds / 3600) * 10) / 10;
+          const hoursLabel = Number.isInteger(totalHours)
+            ? formatArabicUnit(totalHours, 'ساعة', 'ساعتان', 'ساعات', 'ساعة')
+            : `${toArabicDigits(totalHours)} ساعة`;
+          const chaptersLabel = formatArabicUnit(
+            COURSE.chapters.length,
+            'فصل',
+            'فصلان',
+            'فصول',
+            'فصلاً'
+          );
+
+          courseMetaEl.innerHTML = `
+            <span>${escapeHtml(COURSE.title)}</span>
+            <span aria-hidden="true">·</span>
+            <span>${hoursLabel}</span>
+            <span aria-hidden="true">·</span>
+            <span>${chaptersLabel}</span>
+          `;
+
+          COURSE.chapters.forEach((chapter, index) => {
+            const opt = document.createElement('option');
+            opt.value = String(index);
+            opt.textContent = `الفصل ${index + 1} — ${chapter.title} (${formatTimestamp(chapter.start)})`;
+            chapterSelect.appendChild(opt);
+          });
+
+          try {
+            const savedName = localStorage.getItem(STORAGE_KEYS.name);
+            const savedChapter = localStorage.getItem(STORAGE_KEYS.chapter);
+            if (savedName) nameInput.value = savedName;
+            if (
+              savedChapter !== null &&
+              savedChapter !== '' &&
+              Number.isInteger(Number(savedChapter)) &&
+              Number(savedChapter) >= 0 &&
+              Number(savedChapter) < COURSE.chapters.length
+            ) {
+              chapterSelect.value = savedChapter;
+            }
+          } catch (_) {
+            // Ignore localStorage access errors in restricted contexts
+          }
+        }
+
+        function renderChapters() {
+          chaptersCountEl.textContent = formatArabicUnit(
+            COURSE.chapters.length,
+            'فصل',
+            'فصلان',
+            'فصول',
+            'فصلاً'
+          );
+
+          if (!COURSE.chapters.length) {
+            chaptersContainer.innerHTML = '<p class="empty-state">لا توجد فصول مضافة.</p>';
+            return;
+          }
+
+          const itemsHtml = COURSE.chapters
+            .map((chapter, index) => {
+              const pct = calcProgress(index, COURSE);
+              const timestamp = formatTimestamp(chapter.start);
+              const label = `الفصل ${index + 1} — ${escapeHtml(chapter.title)}`;
+              const url = buildChapterUrl(COURSE.youtubeVideoId, chapter.start);
+
+              if (url) {
+                return `
+                  <li class="chapter-item">
+                    <a class="chapter-row" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+                      <span class="chapter-label">${label}</span>
+                      <span class="chapter-meta">
+                        <span class="ltr-num">${escapeHtml(timestamp)}</span>
+                        <span aria-hidden="true">·</span>
+                        <span class="ltr-num">${pct}%</span>
+                        <svg class="ext-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </span>
+                    </a>
+                  </li>
+                `;
+              }
+
+              return `
+                <li class="chapter-item">
+                  <div class="chapter-row">
+                    <span class="chapter-label">${label}</span>
+                    <span class="chapter-meta">
+                      <span class="ltr-num">${escapeHtml(timestamp)}</span>
+                      <span aria-hidden="true">·</span>
+                      <span class="ltr-num">${pct}%</span>
+                    </span>
+                  </div>
+                </li>
+              `;
+            })
+            .join('');
+
+          chaptersContainer.innerHTML = `<ul class="chapter-list">${itemsHtml}</ul>`;
+        }
+
+        function renderLeaderboard() {
+          if (isLoading) {
+            leaderboardCountEl.textContent = '';
+            leaderboardContainer.innerHTML = '<p class="empty-state">جارٍ تحميل المتصدرين...</p>';
+            return;
+          }
+
+          const sorted = sortLeaderboard(leaderboardRows);
+          let currentName = '';
+          try {
+            currentName = (localStorage.getItem(STORAGE_KEYS.name) || nameInput.value || '').trim();
+          } catch (_) {
+            currentName = (nameInput.value || '').trim();
+          }
+
+          if (sorted.length === 0) {
+            leaderboardCountEl.textContent = '';
+            leaderboardContainer.innerHTML = '<p class="empty-state">لا يوجد تقدم بعد — كن الأول!</p>';
+            return;
+          }
+
+          leaderboardCountEl.textContent = formatArabicUnit(
+            sorted.length,
+            'مشارك',
+            'مشاركان',
+            'مشاركين',
+            'مشاركاً'
+          );
+
+          const itemsHtml = sorted
+            .map((row, idx) => {
+              const rank = idx + 1;
+              const rawIndex = Number(row.chapter_index) || 0;
+              const safeIndex = Math.max(0, Math.min(COURSE.chapters.length - 1, rawIndex));
+              const chapter = COURSE.chapters[safeIndex] || { title: '', start: 0 };
+              const pct = calcProgress(safeIndex, COURSE);
+              const relativeTime = formatRelativeArabic(row.updated_at);
+              const isMe = currentName && row.player_name === currentName;
+
+              return `
+                <li class="leader-row${isMe ? ' is-me' : ''}">
+                  <div class="leader-top">
+                    <span class="rank-num">${rank}</span>
+                    <span class="player-name">${escapeHtml(row.player_name)}</span>
+                    <span class="time-ago">${escapeHtml(relativeTime)}</span>
+                  </div>
+                  <div class="leader-chapter">الفصل ${safeIndex + 1} — ${escapeHtml(chapter.title)}</div>
+                  <div class="progress-row">
+                    <div class="progress-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="نسبة الإنجاز">
+                      <div class="progress-fill" style="width: ${pct}%"></div>
+                    </div>
+                    <span class="progress-pct">${pct}%</span>
+                  </div>
+                </li>
+              `;
+            })
+            .join('');
+
+          leaderboardContainer.innerHTML = `<ol class="leader-list">${itemsHtml}</ol>`;
+        }
+
+        function showError(message = 'تعذّر حفظ تقدمك. حاول مرة أخرى.') {
+          errorEl.textContent = message;
+          errorEl.hidden = false;
+          statusEl.hidden = true;
+        }
+
+        function clearMessages() {
+          errorEl.hidden = true;
+          statusEl.hidden = true;
+        }
+
+        async function fetchLeaderboard() {
+          if (!db) return;
+          try {
+            const { data, error } = await db
+              .from('leaderboard')
+              .select('id, player_name, chapter_index, updated_at')
+              .order('chapter_index', { ascending: false })
+              .order('updated_at', { ascending: true });
+
+            if (!error && Array.isArray(data)) {
+              leaderboardRows = sortLeaderboard(data);
+            }
+          } finally {
+            isLoading = false;
+            renderLeaderboard();
+          }
+        }
+
+        function initSupabase() {
+          if (!window.supabase || !isSupabaseConfigured()) {
+            return;
+          }
+
+          isLoading = true;
+          renderLeaderboard();
+          db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          fetchLeaderboard();
+
+          db.channel('leaderboard-live')
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'leaderboard' },
+              (payload) => {
+                if (payload.eventType === 'DELETE' && payload.old) {
+                  leaderboardRows = leaderboardRows.filter(
+                    (row) => row.id !== payload.old.id && row.player_name !== payload.old.player_name
+                  );
+                  renderLeaderboard();
+                  return;
+                }
+                if (payload.new) {
+                  leaderboardRows = upsertLocalRow(leaderboardRows, payload.new);
+                  renderLeaderboard();
+                } else {
+                  fetchLeaderboard();
+                }
+              }
+            )
+            .subscribe();
+        }
+
+        formEl.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          clearMessages();
+
+          const playerName = nameInput.value.trim();
+          const rawChapter = chapterSelect.value;
+
+          if (!playerName) {
+            nameInput.focus();
+            showError('يرجى إدخال اسمك أولاً.');
+            return;
+          }
+
+          if (rawChapter === '') {
+            chapterSelect.focus();
+            showError('يرجى اختيار الفصل الذي وصلت إليه.');
+            return;
+          }
+
+          const chapterIndex = Number(rawChapter);
+          if (!Number.isInteger(chapterIndex) || chapterIndex < 0 || chapterIndex >= COURSE.chapters.length) {
+            showError();
+            return;
+          }
+
+          try {
+            localStorage.setItem(STORAGE_KEYS.name, playerName);
+            localStorage.setItem(STORAGE_KEYS.chapter, String(chapterIndex));
+          } catch (_) {
+            // Ignore storage failures
+          }
+
+          if (!db) {
+            showError();
+            return;
+          }
+
+          submitBtn.disabled = true;
+          try {
+            const { data, error } = await db
+              .from('leaderboard')
+              .upsert(
+                {
+                  player_name: playerName,
+                  chapter_index: chapterIndex,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'player_name' }
+              )
+              .select('id, player_name, chapter_index, updated_at');
+
+            if (error) {
+              showError();
+              return;
+            }
+
+            if (Array.isArray(data) && data[0]) {
+              leaderboardRows = upsertLocalRow(leaderboardRows, data[0]);
+              renderLeaderboard();
+            } else {
+              await fetchLeaderboard();
+            }
+
+            statusEl.textContent = 'تم حفظ تقدمك.';
+            statusEl.hidden = false;
+          } catch (_) {
+            showError();
+          } finally {
+            submitBtn.disabled = false;
+          }
+        });
+
+        initMetaAndForm();
+        renderChapters();
+        renderLeaderboard();
+        initSupabase();
+
+        // Refresh relative timestamps every minute without extra database requests
+        setInterval(() => {
+          if (leaderboardRows.length > 0) {
+            renderLeaderboard();
+          }
+        }, 60000);
+      }
+    </script>
+  </body>
+</html>
